@@ -1,0 +1,102 @@
+
+flag = false;
+message = Map();
+if(arguments == "")
+{
+	message.put("text","Please choose from the _options_ and enter something you want search as input. Usage \"/medium *option* free-code-camp\"");
+	return message;
+}
+if(selections.size() > 0)
+{
+	details = selections.get(0).toMap();
+	if(details.get("title").containsIgnoreCase("Username"))
+	{
+		url = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@" + encodeUrl(arguments);
+		url = url.removeFirstOccurence("+");
+		flag = true;
+	}
+	else if(details.get("title").containsIgnoreCase("Publication"))
+	{
+		url = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/" + encodeUrl(arguments);
+		url = url.removeFirstOccurence("+");
+	}
+}
+else
+{
+	url = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/" + encodeUrl(arguments);
+}
+response = getUrl(url,{"Content-Encoding":"gzip"});
+status = response.toMap().get("status");
+if(status == "ok")
+{
+	itemsList = response.toMap().get("items");
+	feed = response.toMap().get("feed");
+	title = feed.toMap().get("title");
+	image = feed.toMap().get("image");
+	slidesList = list();
+	slidesList0 = Map();
+	slidesList0.put("type","images");
+	dataList = list();
+	dataList.add(image);
+	slidesList0.put("data",dataList);
+	slidesList.add(slidesList0);
+	message.put("slides",slidesList);
+	text = "*There are no " + title + "*\n";
+	if(itemsList.isEmpty())
+	{
+		message.put("text",text);
+		return message;
+	}
+	count = 0;
+	response = "*" + title + "*\n";
+	indexes = {"1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"};
+	for each  item in itemsList
+	{
+		l = item.get("link");
+		link = l.replaceFirst("@","%40");
+		response = response + indexes.get(count) + "  [" + item.get("title") + "](" + link + ")    " + "\n";
+		count = count + 1;
+		if(count > 9)
+		{
+			break;
+		}
+	}
+	message.put("text",response);
+	return message;
+}
+else if(flag == true)
+{
+	url = "https://www.googleapis.com/customsearch/v1?key={YOUR KEY}&cx=002084031288054668458:vcly9iguf3p&q=" + encodeUrl(arguments);
+	response = getUrl(url,{"Content-Encoding":"gzip"});
+	itemsList = "";
+	res = response.toMap().get("searchInformation");
+	r = res.get("totalResults");
+	if(r == 0)
+	{
+		message.put("text","*No such _User/Publication_ exists in medium*");
+		return message;
+	}
+	itemsList = response.toMap().get("items");
+	count = 0;
+	response = "*User name, not found! Maybe try any of these.*" + "\n";
+	indexes = {"1️⃣","2️⃣","3️⃣","4️⃣","5️⃣"};
+	for each  item in itemsList
+	{
+		l = item.get("link");
+		result = l.removeFirstOccurence("https://medium.com/@");
+		response = response + indexes.get(count) + result + "\n";
+		count = count + 1;
+		if(count > 4)
+		{
+			break;
+		}
+	}
+	message.put("text",response);
+	return message;
+}
+else
+{
+	response = "*Publication name, not found in medium! Enter a valid publication *" + "\n";
+	message.put("text",response);
+	return message;
+}
