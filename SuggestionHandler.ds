@@ -1,0 +1,16 @@
+if(arguments.contains(" "))
+{
+	arguments = arguments.replaceAll(" ","+");
+}
+list = List();
+entry = Map();
+entry.put("title","@Username");
+entry.put("description","Search @User-Handle");
+entry.put("imageurl","https://medium.com/icons/monogram-mask.svg");
+list.add(entry);
+entry1 = Map();
+entry1.put("title","Publication");
+entry1.put("description","Search Publications");
+entry1.put("imageurl","https://medium.com/icons/monogram-mask.svg");
+list.add(entry1);
+return list;
