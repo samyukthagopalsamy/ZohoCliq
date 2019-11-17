@@ -1,11 +1,16 @@
-
+/*
+On typing the /medium command on the chat window, the user suggestions of -@Username and -Publication pops up.
+*/
 flag = false;
 message = Map();
-if(arguments == "")
+if(arguments == "") // The user is prompted to choose either of the suggestions.
 {
 	message.put("text","Please choose from the _options_ and enter something you want search as input. Usage \"/medium *option* free-code-camp\"");
 	return message;
 }
+/*
+https://rss2json.com/, is an online rss to json convertor used to convert rss feed from medium.com to json format.
+*/
 if(selections.size() > 0)
 {
 	details = selections.get(0).toMap();
@@ -25,8 +30,12 @@ else
 {
 	url = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/" + encodeUrl(arguments);
 }
+
 response = getUrl(url,{"Content-Encoding":"gzip"});
 status = response.toMap().get("status");
+/*
+If the status returned in json is "ok" then the required keys are obtained from json.
+*/
 if(status == "ok")
 {
 	itemsList = response.toMap().get("items");
@@ -49,11 +58,11 @@ if(status == "ok")
 	}
 	count = 0;
 	response = "*" + title + "*\n";
-	indexes = {"1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"};
+	indexes = {"1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"};// displaying first 10 items 
 	for each  item in itemsList
 	{
 		l = item.get("link");
-		link = l.replaceFirst("@","%40");
+		link = l.replaceFirst("@","%40"); // converting special character @ to %40 for proper rendering of url.
 		response = response + indexes.get(count) + "  [" + item.get("title") + "](" + link + ")    " + "\n";
 		count = count + 1;
 		if(count > 9)
@@ -66,6 +75,9 @@ if(status == "ok")
 }
 else if(flag == true)
 {
+ /*
+ use google custom search api to search medium.com specifically.
+ */
 	url = "https://www.googleapis.com/customsearch/v1?key={YOUR KEY}&cx=002084031288054668458:vcly9iguf3p&q=" + encodeUrl(arguments);
 	response = getUrl(url,{"Content-Encoding":"gzip"});
 	itemsList = "";
